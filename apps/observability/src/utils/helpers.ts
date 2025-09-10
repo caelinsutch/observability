@@ -135,6 +135,7 @@ export const getPageMetadata = () => {
   
   for (let i = 0; i < metas.length; i++) {
     const meta = metas[i];
+    if (!meta) continue;
     const name = meta.getAttribute('name') || meta.getAttribute('property');
     const content = meta.getAttribute('content');
     

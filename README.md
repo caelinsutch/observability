@@ -4,6 +4,13 @@
 
 Build a simple observability script & API for Nextjs, recording user actions such as button clicks, console errors, and keeping track of key performance KPIs, such as latency for images/videos to load/render in the browser. This should then be uploaded to an API endpoint, where it should be stored in a database and then be able to be served from a web dashboard which utilizes charts and tables to visualize the performance statistics and show errors.
 
+## Packages
+
+`apps/demo`
+
+`apps/observability`
+
+
 ## System Architecture Overview
 
 1. Data Collection Layer - CDN distributed script

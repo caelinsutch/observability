@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EventBatcher } from '../batcher';
 import { EventType } from '../../types/events';
+import type { CustomEvent } from '../../types/events';
 
 // Mock fetch
 global.fetch = vi.fn();
@@ -8,7 +9,7 @@ global.fetch = vi.fn();
 describe('EventBatcher', () => {
   let batcher: EventBatcher;
   const mockEndpoint = 'https://api.example.com/events';
-  const mockEvent = {
+  const mockEvent: CustomEvent = {
     timestamp: Date.now(),
     session_id: 'test-session',
     user_fingerprint: 'test-fingerprint',

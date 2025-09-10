@@ -1,27 +1,30 @@
 {
-  "name": "@observability/clickhouse",
-  "version": "1.0.0",
-  "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "check-types": "tsc --noEmit",
-    "migrate:up": "tsx src/scripts/migrate.ts up",
-    "migrate:down": "tsx src/scripts/migrate.ts down",
-    "migrate:create": "tsx src/scripts/create-migration.ts",
-    "clickhouse:start": "sudo clickhouse start",
-    "clickhouse:stop": "sudo clickhouse stop",
-    "seed": "tsx src/scripts/seed.ts"
-  },
-  "dependencies": {
-    "@clickhouse/client": "^1.12.1",
-    "@observability/types": "workspace:*"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "tsx": "catalog:",
-    "typescript": "catalog:"
-  }
+	"name": "@observability/clickhouse",
+	"version": "1.0.0",
+	"private": true,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"check-types": "tsc --noEmit",
+		"migrate:up": "tsx src/scripts/migrate.ts up",
+		"migrate:down": "tsx src/scripts/migrate.ts down",
+		"migrate:create": "tsx src/scripts/create-migration.ts",
+		"clickhouse:start": "sudo clickhouse start",
+		"clickhouse:stop": "sudo clickhouse stop",
+		"seed": "tsx src/scripts/seed.ts"
+	},
+	"dependencies": {
+		"@clickhouse/client": "^1.12.1",
+		"@observability/types": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "catalog:",
+		"tsx": "catalog:",
+		"typescript": "catalog:"
+	}
 }

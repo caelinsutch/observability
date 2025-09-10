@@ -8,6 +8,9 @@
 		"start": "wrangler dev",
 		"typegen": "wrangler types"
 	},
+	"dependencies": {
+		"@observability/schemas": "workspace:*"
+	},
 	"devDependencies": {
 		"@observability/typescript-config": "workspace:*",
 		"typescript": "^5.5.2",

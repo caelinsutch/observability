@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import { env } from './env.js';
+import { eventsRoutes } from './routes/events.js';
 
 const server = fastify({
   logger: {
@@ -27,6 +28,9 @@ server.get('/health', async () => {
     environment: env.NODE_ENV,
   };
 });
+
+// Register event routes
+server.register(eventsRoutes);
 
 const start = async () => {
   try {

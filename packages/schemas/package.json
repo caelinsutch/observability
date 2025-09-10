@@ -1,0 +1,14 @@
+{
+  "name": "@observability/schemas",
+  "version": "1.0.0",
+  "description": "Shared validation schemas for observability",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

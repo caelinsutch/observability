@@ -1,43 +1,95 @@
-/**
- * Welcome to Cloudflare Workers!
- *
- * This is a template for a Queue consumer: a Worker that can consume from a
- * Queue: https://developers.cloudflare.com/queues/get-started/
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import type { Event } from '@observability/schemas';
 
 export default {
-	// Our fetch handler is invoked on a HTTP request: we can send a message to a queue
-	// during (or after) a request.
-	// https://developers.cloudflare.com/queues/platform/javascript-apis/#producer
+	// HTTP endpoint to receive events from the observability script
 	async fetch(req, env, _ctx): Promise<Response> {
-		// To send a message on a queue, we need to create the queue first
-		// https://developers.cloudflare.com/queues/get-started/#3-create-a-queue
-		await env.OBSERVABILITY_QUEUE.send({
-			url: req.url,
-			method: req.method,
-			headers: Object.fromEntries(req.headers),
-		});
-		return new Response("Sent message to the queue");
+		if (req.method !== 'POST') {
+			return new Response('Method not allowed', { status: 405 });
+		}
+
+		try {
+			const contentType = req.headers.get('content-type');
+			
+			if (contentType?.includes('application/json')) {
+				// Single event or array of events
+				const data = await req.json() as Event | Event[];
+				const events = Array.isArray(data) ? data : [data];
+				
+				// Add each event to the queue
+				for (const event of events) {
+					await env.OBSERVABILITY_QUEUE.send(event);
+				}
+				
+				return new Response(JSON.stringify({ 
+					success: true, 
+					count: events.length 
+				}), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' }
+				});
+			} else {
+				return new Response('Unsupported content type', { status: 415 });
+			}
+		} catch (error) {
+			console.error('Error processing request:', error);
+			return new Response(JSON.stringify({ 
+				error: 'Failed to process events' 
+			}), { 
+				status: 500,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
 	},
-	// The queue handler is invoked when a batch of messages is ready to be delivered
-	// https://developers.cloudflare.com/queues/platform/javascript-apis/#messagebatch
-	async queue(batch, _env): Promise<void> {
-		// A queue consumer can make requests to other endpoints on the Internet,
-		// write to R2 object storage, query a D1 Database, and much more.
+	
+	// Queue handler processes events in batches
+	async queue(batch, env): Promise<void> {
+		const events: Event[] = [];
+		
+		// Collect all events from the batch
 		for (const message of batch.messages) {
-			// Process each message (we'll just log these)
-			console.log(
-				`message ${message.id} processed: ${JSON.stringify(message.body)}`,
-			);
+			try {
+				const event = message.body as Event;
+				events.push(event);
+				
+				// Acknowledge the message
+				message.ack();
+			} catch (error) {
+				console.error(`Failed to process message ${message.id}:`, error);
+				// Retry the message
+				message.retry();
+			}
+		}
+		
+		if (events.length === 0) {
+			return;
+		}
+		
+		// Send batch to server
+		try {
+			const serverUrl = env.SERVER_URL || 'http://localhost:3000';
+			const response = await fetch(`${serverUrl}/api/events/batch`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Worker-Auth': env.WORKER_AUTH_TOKEN || 'development'
+				},
+				body: JSON.stringify({
+					events,
+					processedAt: new Date().toISOString(),
+					workerInstance: env.CF_INSTANCE_ID || 'local',
+				}),
+			});
+			
+			if (!response.ok) {
+				throw new Error(`Server responded with ${response.status}: ${await response.text()}`);
+			}
+			
+			const result = await response.json();
+			console.log(`Successfully sent batch of ${events.length} events:`, result);
+		} catch (error) {
+			console.error('Failed to send batch to server:', error);
+			// Could implement retry logic or dead letter queue here
+			throw error;
 		}
 	},
 } satisfies ExportedHandler<Env, Error>;

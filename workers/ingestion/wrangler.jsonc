@@ -25,7 +25,10 @@
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
-	// "vars": { "MY_VARIABLE": "production_value" }
+	"vars": { 
+		"SERVER_URL": "http://localhost:3001",
+		"WORKER_AUTH_TOKEN": "development"
+	},
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
@@ -52,5 +55,15 @@
 				"queue": "observability-queue"
 			}
 		]
-	}
+	},
+	/**
+	 * KV Namespace for storing allowed domains
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#kv-namespaces
+	 */
+	"kv_namespaces": [
+		{
+			"binding": "ALLOWED_DOMAINS",
+			"id": "allowed_domains_namespace"
+		}
+	]
 }

@@ -1,4 +1,4 @@
-import { createClient, ClickHouseClient } from '@clickhouse/client';
+import { createClient, ClickHouseClient, DataFormat } from '@clickhouse/client';
 
 export interface ClickHouseConfig {
   url?: string;
@@ -64,15 +64,16 @@ class ClickHouseConnection {
     await this.client.exec({ query });
   }
 
-  async query<T>(query: string, format: string = 'JSONEachRow'): Promise<T[]> {
+  async query<T>(query: string, format: DataFormat = 'JSONEachRow'): Promise<T[]> {
     const result = await this.client.query({
       query,
       format,
     });
-    return await result.json<T>();
+    const json = await result.json<T>();
+    return Array.isArray(json) ? json : [];
   }
 
-  async insert<T>(table: string, values: T[], format: string = 'JSONEachRow'): Promise<void> {
+  async insert<T>(table: string, values: T[], format: DataFormat = 'JSONEachRow'): Promise<void> {
     await this.client.insert({
       table,
       values,
