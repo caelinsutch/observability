@@ -38,6 +38,9 @@ importers:
 
   apps/demo:
     dependencies:
+      '@observability/observability':
+        specifier: workspace:*
+        version: link:../observability
       next:
         specifier: ^15.5.0
         version: 15.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

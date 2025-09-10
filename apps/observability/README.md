@@ -27,7 +27,6 @@ import { Observability } from '@observability/observability';
 // Initialize the library
 const observability = await Observability.init({
   endpoint: 'https://your-analytics-endpoint.com/events',
-  apiKey: 'your-api-key', // Optional
   batchSize: 50, // Events per batch
   flushInterval: 5000, // Flush interval in ms
   debug: true, // Enable debug logging
@@ -39,7 +38,6 @@ const observability = await Observability.init({
 ```typescript
 interface ObservabilityConfig {
   endpoint: string;                    // Required: Your analytics endpoint
-  apiKey?: string;                     // Optional: API authentication
   batchSize?: number;                  // Default: 50
   flushInterval?: number;              // Default: 5000ms
   enableClickTracking?: boolean;       // Default: true
