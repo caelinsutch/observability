@@ -1,135 +1,64 @@
-# Turborepo starter
+# Observability Product
 
-This Turborepo starter is maintained by the Turborepo core team.
+## Objective
 
-## Using this example
+Build a simple observability script & API for Nextjs, recording user actions such as button clicks, console errors, and keeping track of key performance KPIs, such as latency for images/videos to load/render in the browser. This should then be uploaded to an API endpoint, where it should be stored in a database and then be able to be served from a web dashboard which utilizes charts and tables to visualize the performance statistics and show errors.
 
-Run the following command:
+## System Architecture Overview
 
-```sh
-npx create-turbo@latest
-```
+1. Data Collection Layer - CDN distributed script
 
-## What's inside?
+Client SDK: Lightweight JavaScript library for instrumenting. Built with typescript and distributed through a cloudflare CDN script
 
-This Turborepo includes the following packages/apps:
+- Identify client 
+- Event collectors (clicks, errors, custom events)
+- Performance observers (Web Vitals, resource timing, paint timing)
+- Automatic session tracking and user identification
+- Batching and compression logic
+- Retry mechanisms with exponential backoff
+- Sampling capabilities (to control data volume)
+- Data Sanitization: Automatic PII removal (emails, credit cards, SSNs)
 
-### Apps and Packages
+2. Ingestion Layer - Cloudflare worker deployed on the edge
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Ingestion API: High-throughput endpoint to receive telemetry as a cloudflare worker.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- Check allowed origins - Cloudflare KV
+- Rate limiting per client
+- Request validation and sanitization
+- Immediate write to cloudflare queue
+- Return acknowledgment to client
 
-### Utilities
+3. Processing Layer - Fastify Server
 
-This Turborepo has some additional tools already setup for you:
+Stream Processor Service: Consumes batched data from Cloudflare queue
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- Data transformation and normalization
+- Batch writes to ClickHouse~
 
-### Build
+4. Storage Layer
 
-To build all apps and packages, run the following command:
+Redis: Temporary buffer and real-time processing
 
-```
-cd my-turborepo
+- Streams for event queue
+- Caching for API endpoints
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+ClickHouse: Long-term analytical storage
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+- Optimized table schemas for different event types
+- Materialized views for common queries
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+5. Query & API Layer
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+Query API: Serves dashboard and external integrations
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- Aggregation endpoints
+- Time-series queries
+- Error log retrieval
+- Caching layer for expensive queries
 
-### Develop
 
-To develop all apps and packages, run the following command:
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+## Tradeoffs
+- Cloudflare workers, while fast, have a increased cost at scale compared to deploying multiple traditional servers. 
+- Cloudflare queues and key value stores were used for compatibility with workers for the above reason, these could be swapped out for any other queue / key system (like Redis) if we wanted to move away from workers
