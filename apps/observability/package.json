@@ -1,0 +1,35 @@
+{
+	"name": "@observability/observability",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Browser observability and analytics tracking library",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint . --ext .ts,.tsx",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest --coverage"
+	},
+	"devDependencies": {
+		"@observability/typescript-config": "workspace:*",
+		"@testing-library/dom": "^10.4.1",
+		"@types/node": "^20.10.0",
+		"@vitest/ui": "^3.2.4",
+		"happy-dom": "^18.0.1",
+		"jsdom": "^26.1.0",
+		"tsup": "^8.0.1",
+		"typescript": "catalog:",
+		"vitest": "^3.2.4"
+	},
+	"dependencies": {
+		"@fingerprintjs/fingerprintjs": "^4.2.2"
+	}
+}

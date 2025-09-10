@@ -1,0 +1,15 @@
+{
+  "name": "@observability/types",
+  "version": "1.0.0",
+  "description": "Shared types for observability",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}
