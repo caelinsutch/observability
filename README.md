@@ -28,6 +28,7 @@ Ingestion API: High-throughput endpoint to receive telemetry as a cloudflare wor
 - Request validation and sanitization
 - Immediate write to cloudflare queue
 - Return acknowledgment to client
+- Queue sends batched data to fastify server
 
 3. Processing Layer - Fastify Server
 

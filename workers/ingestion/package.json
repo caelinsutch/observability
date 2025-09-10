@@ -1,0 +1,16 @@
+{
+	"name": "@observability/ingestion",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"@observability/typescript-config": "workspace:*",
+		"typescript": "^5.5.2",
+		"wrangler": "^4.35.0"
+	}
+}
