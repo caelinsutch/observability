@@ -25,7 +25,7 @@
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
-	"vars": { 
+	"vars": {
 		"SERVER_URL": "http://localhost:3001",
 		"WORKER_AUTH_TOKEN": "development"
 	},

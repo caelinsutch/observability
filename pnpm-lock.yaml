@@ -40,7 +40,7 @@ importers:
     dependencies:
       '@observability/observability':
         specifier: workspace:*
-        version: link:../observability
+        version: link:../../packages/observability
       next:
         specifier: ^15.5.0
         version: 15.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -69,40 +69,6 @@ importers:
       typescript:
         specifier: 5.9.2
         version: 5.9.2
-
-  apps/observability:
-    dependencies:
-      '@fingerprintjs/fingerprintjs':
-        specifier: ^4.2.2
-        version: 4.6.2
-    devDependencies:
-      '@observability/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-      '@testing-library/dom':
-        specifier: ^10.4.1
-        version: 10.4.1
-      '@types/node':
-        specifier: ^20.10.0
-        version: 20.19.13
-      '@vitest/ui':
-        specifier: ^3.2.4
-        version: 3.2.4(vitest@3.2.4)
-      happy-dom:
-        specifier: ^18.0.1
-        version: 18.0.1
-      jsdom:
-        specifier: ^26.1.0
-        version: 26.1.0
-      tsup:
-        specifier: ^8.0.1
-        version: 8.5.0(postcss@8.5.6)(tsx@4.20.5)(typescript@5.9.2)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.2
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.13)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(tsx@4.20.5)
 
   apps/server:
     dependencies:
@@ -156,6 +122,40 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.2
+
+  packages/observability:
+    dependencies:
+      '@fingerprintjs/fingerprintjs':
+        specifier: ^4.2.2
+        version: 4.6.2
+    devDependencies:
+      '@observability/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@testing-library/dom':
+        specifier: ^10.4.1
+        version: 10.4.1
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.13
+      '@vitest/ui':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4)
+      happy-dom:
+        specifier: ^18.0.1
+        version: 18.0.1
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.0(postcss@8.5.6)(tsx@4.20.5)(typescript@5.9.2)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.13)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@26.1.0)(tsx@4.20.5)
 
   packages/schemas:
     dependencies:

@@ -9,7 +9,6 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsc --watch",
 		"check-types": "tsc --noEmit",
 		"migrate:up": "tsx src/scripts/migrate.ts up",
 		"migrate:down": "tsx src/scripts/migrate.ts down",

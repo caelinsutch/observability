@@ -1,21 +1,20 @@
 {
-  "name": "@observability/types",
-  "version": "1.0.0",
-  "description": "Shared types for observability",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "check-types": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@observability/schemas": "workspace:*"
-  },
-  "devDependencies": {
-    "typescript": "catalog:"
-  }
+	"name": "@observability/types",
+	"version": "1.0.0",
+	"description": "Shared types for observability",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"build": "tsc",
+		"check-types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@observability/schemas": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
 }
