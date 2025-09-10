@@ -1,6 +1,4 @@
 -- Rollback: Initial schema setup
--- Drops all observability tables
+-- Drops the events table
 
-DROP TABLE IF EXISTS observability.logs;
-DROP TABLE IF EXISTS observability.metrics;
 DROP TABLE IF EXISTS observability.events;

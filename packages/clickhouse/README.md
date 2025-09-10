@@ -1,6 +1,6 @@
 # @observability/clickhouse
 
-ClickHouse package for centralized observability data storage and management.
+ClickHouse package for centralized observability event storage.
 
 ## Structure
 
@@ -58,29 +58,32 @@ pnpm run seed
 
 ```typescript
 import { getConnection } from '@observability/clickhouse';
-import { prepareLogsForInsert } from '@observability/clickhouse';
-import type { Log } from '@observability/types';
+import { prepareEventsForInsert } from '@observability/clickhouse';
+import type { Event } from '@observability/types';
 
 // Get connection
 const connection = getConnection();
 
-// Insert logs
-const logs: Log[] = [
+// Insert events
+const events: Event[] = [
   {
     timestamp: new Date(),
-    level: 'info',
-    message: 'Application started',
     service_name: 'api-gateway',
-    context: { port: 3000 },
+    event_type: 'log',
+    severity_level: 'info',
+    name: 'application.startup',
+    message: 'Application started',
+    attributes: { port: 3000 },
+    resource_attributes: { host: 'api-01' },
     environment: 'production'
   }
 ];
 
-await connection.insert('observability.logs', prepareLogsForInsert(logs));
+await connection.insert('observability.events', prepareEventsForInsert(events));
 
 // Query data
-const results = await connection.query<LogRecord>(
-  'SELECT * FROM observability.logs WHERE level = {level:String}',
+const results = await connection.query<EventRecord>(
+  'SELECT * FROM observability.events WHERE severity_level = {level:String}',
   { level: 'error' }
 );
 
@@ -107,7 +110,20 @@ await connection.close();
 - `pnpm run clickhouse:stop` - Stop ClickHouse server
 - `pnpm run seed` - Seed sample data
 
-## Tables
+## Events Table
 
-### events
-Stores distributed tracing events and spans with full trace context.
+The unified `events` table stores all observability data with the following capabilities:
+
+- **Event Types**: Supports logs, metrics, traces, and spans
+- **Trace Context**: Full distributed tracing support with trace/span IDs
+- **Flexible Attributes**: JSON fields for custom attributes
+- **User Context**: Track user and session information
+- **Optimized Indexing**: Bloom filters for efficient querying
+- **Data Retention**: 30-day TTL with automatic cleanup
+
+## Event Types
+
+- **log**: Application logs with severity levels
+- **metric**: Time-series metrics (stored as events with metric data in attributes)
+- **trace**: Complete trace information
+- **span**: Individual spans within traces

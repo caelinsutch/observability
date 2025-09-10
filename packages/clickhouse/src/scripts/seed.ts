@@ -1,6 +1,6 @@
 import { getConnection } from '../client';
-import { prepareEventsForInsert, prepareMetricsForInsert, prepareLogsForInsert } from '../types/clickhouse';
-import type { Event, Metric, Log, SeverityLevel, MetricType, EventType } from '@observability/types';
+import { prepareEventsForInsert } from '../types/clickhouse';
+import type { Event, SeverityLevel, EventType } from '@observability/types';
 
 async function seed() {
   const connection = getConnection();
@@ -12,144 +12,181 @@ async function seed() {
       throw new Error('Failed to connect to ClickHouse');
     }
     
-    console.log('Connected to ClickHouse, seeding sample data...');
+    console.log('Connected to ClickHouse, seeding sample events...');
     
-    // Sample events
+    // Sample events covering different event types
     const events: Event[] = [
+      // Span events
       {
+        timestamp: new Date(),
+        service_name: 'api-gateway',
+        environment: 'production',
+        version: '1.0.0',
         trace_id: 'trace-001',
         span_id: 'span-001',
         parent_span_id: null,
-        timestamp: new Date(),
+        event_type: 'span' as EventType,
+        severity_level: 'info' as SeverityLevel,
+        name: 'GET /api/users',
+        message: 'HTTP request processed',
         duration_ns: 1500000,
-        service_name: 'api-gateway',
-        operation: 'GET /api/users',
         status_code: 200,
         status_message: 'OK',
-        event_type: 'span' as EventType,
-        severity_level: 'info' as SeverityLevel,
-        attributes: { method: 'GET', path: '/api/users' },
-        resource_attributes: { host: 'api-01', region: 'us-west-2' },
         user_id: 'user-123',
         session_id: 'session-456',
-        environment: 'production',
-        version: '1.0.0'
+        attributes: { 
+          method: 'GET', 
+          path: '/api/users',
+          response_size: 2048
+        },
+        resource_attributes: { 
+          host: 'api-01', 
+          region: 'us-west-2',
+          cluster: 'prod-cluster-1'
+        }
       },
       {
-        trace_id: 'trace-002',
-        span_id: 'span-002',
-        parent_span_id: null,
         timestamp: new Date(),
-        duration_ns: 3500000,
         service_name: 'user-service',
-        operation: 'database.query',
-        status_code: 200,
-        status_message: 'OK',
-        event_type: 'span' as EventType,
-        severity_level: 'info' as SeverityLevel,
-        attributes: { query: 'SELECT * FROM users', rows_returned: 42 },
-        resource_attributes: { host: 'db-01', region: 'us-west-2' },
-        environment: 'production',
-        version: '1.0.0'
-      }
-    ];
-    
-    // Sample metrics
-    const metrics: Metric[] = [
-      {
-        metric_name: 'http_requests_total',
-        timestamp: new Date(),
-        value: 1234,
-        unit: 'requests',
-        metric_type: 'counter' as MetricType,
-        labels: { method: 'GET', endpoint: '/api/users', status: '200' },
-        service_name: 'api-gateway',
-        environment: 'production',
-        count: 1,
-        sum: 1234
-      },
-      {
-        metric_name: 'memory_usage_bytes',
-        timestamp: new Date(),
-        value: 536870912,
-        unit: 'bytes',
-        metric_type: 'gauge' as MetricType,
-        labels: { host: 'api-01', process: 'node' },
-        service_name: 'api-gateway',
-        environment: 'production'
-      },
-      {
-        metric_name: 'request_duration_ms',
-        timestamp: new Date(),
-        value: 45.5,
-        unit: 'milliseconds',
-        metric_type: 'histogram' as MetricType,
-        labels: { method: 'GET', endpoint: '/api/users' },
-        service_name: 'api-gateway',
-        environment: 'production',
-        count: 100,
-        sum: 4550,
-        min: 12,
-        max: 234
-      }
-    ];
-    
-    // Sample logs
-    const logs: Log[] = [
-      {
-        timestamp: new Date(),
-        level: 'info' as SeverityLevel,
-        message: 'Application started successfully',
-        service_name: 'api-gateway',
-        logger_name: 'startup',
-        context: { port: 3000, workers: 4 },
         environment: 'production',
         version: '1.0.0',
-        hostname: 'api-01'
-      },
-      {
         trace_id: 'trace-001',
-        span_id: 'span-001',
+        span_id: 'span-002',
+        parent_span_id: 'span-001',
+        event_type: 'span' as EventType,
+        severity_level: 'info' as SeverityLevel,
+        name: 'database.query',
+        message: 'Database query executed',
+        duration_ns: 350000,
+        status_code: 200,
+        attributes: { 
+          query: 'SELECT * FROM users WHERE active = true',
+          rows_returned: 42,
+          database: 'users_db'
+        },
+        resource_attributes: { 
+          host: 'db-01',
+          region: 'us-west-2'
+        }
+      },
+      
+      // Log events
+      {
         timestamp: new Date(),
-        level: 'info' as SeverityLevel,
-        message: 'Processing user request',
         service_name: 'api-gateway',
-        logger_name: 'http',
-        context: { method: 'GET', path: '/api/users', user_agent: 'Mozilla/5.0' },
-        user_id: 'user-123',
-        session_id: 'session-456',
         environment: 'production',
         version: '1.0.0',
-        hostname: 'api-01'
+        event_type: 'log' as EventType,
+        severity_level: 'info' as SeverityLevel,
+        name: 'application.startup',
+        message: 'Application started successfully',
+        attributes: { 
+          port: 3000,
+          workers: 4,
+          mode: 'cluster'
+        },
+        resource_attributes: { 
+          host: 'api-01',
+          pid: 12345
+        }
       },
       {
         timestamp: new Date(),
-        level: 'error' as SeverityLevel,
-        message: 'Database connection failed',
         service_name: 'user-service',
-        logger_name: 'database',
-        context: { attempt: 3, max_retries: 3 },
         environment: 'production',
         version: '1.0.0',
-        hostname: 'user-01',
-        error_type: 'ConnectionError',
-        error_message: 'ECONNREFUSED',
-        error_stack: 'Error: connect ECONNREFUSED 127.0.0.1:5432\n    at TCPConnectWrap.afterConnect'
+        trace_id: 'trace-002',
+        event_type: 'log' as EventType,
+        severity_level: 'error' as SeverityLevel,
+        name: 'database.error',
+        message: 'Database connection failed after 3 retries',
+        attributes: { 
+          error_type: 'ConnectionError',
+          error_code: 'ECONNREFUSED',
+          attempts: 3,
+          max_retries: 3
+        },
+        resource_attributes: { 
+          host: 'user-01',
+          region: 'us-west-2'
+        }
+      },
+      
+      // Metric events
+      {
+        timestamp: new Date(),
+        service_name: 'api-gateway',
+        environment: 'production',
+        version: '1.0.0',
+        event_type: 'metric' as EventType,
+        severity_level: 'info' as SeverityLevel,
+        name: 'http_requests_total',
+        message: 'Total HTTP requests counter',
+        attributes: { 
+          value: 1234,
+          unit: 'requests',
+          metric_type: 'counter',
+          method: 'GET',
+          endpoint: '/api/users',
+          status: '200'
+        },
+        resource_attributes: { 
+          host: 'api-01',
+          region: 'us-west-2'
+        }
+      },
+      {
+        timestamp: new Date(),
+        service_name: 'api-gateway',
+        environment: 'production',
+        version: '1.0.0',
+        event_type: 'metric' as EventType,
+        severity_level: 'info' as SeverityLevel,
+        name: 'memory_usage_bytes',
+        message: 'Current memory usage',
+        attributes: { 
+          value: 536870912,
+          unit: 'bytes',
+          metric_type: 'gauge',
+          process: 'node'
+        },
+        resource_attributes: { 
+          host: 'api-01',
+          region: 'us-west-2'
+        }
+      },
+      
+      // Trace event
+      {
+        timestamp: new Date(),
+        service_name: 'api-gateway',
+        environment: 'production',
+        version: '1.0.0',
+        trace_id: 'trace-003',
+        event_type: 'trace' as EventType,
+        severity_level: 'info' as SeverityLevel,
+        name: 'user.login',
+        message: 'User login flow completed',
+        duration_ns: 5000000,
+        status_code: 200,
+        user_id: 'user-789',
+        session_id: 'session-xyz',
+        attributes: { 
+          login_method: 'oauth',
+          provider: 'google',
+          first_login: false
+        },
+        resource_attributes: { 
+          host: 'api-02',
+          region: 'us-east-1'
+        }
       }
     ];
     
-    // Insert data
-    console.log('Inserting events...');
+    // Insert events
+    console.log(`Inserting ${events.length} sample events...`);
     await connection.insert('observability.events', prepareEventsForInsert(events));
     console.log(`✓ Inserted ${events.length} events`);
-    
-    console.log('Inserting metrics...');
-    await connection.insert('observability.metrics', prepareMetricsForInsert(metrics));
-    console.log(`✓ Inserted ${metrics.length} metrics`);
-    
-    console.log('Inserting logs...');
-    await connection.insert('observability.logs', prepareLogsForInsert(logs));
-    console.log(`✓ Inserted ${logs.length} logs`);
     
     // Verify data
     console.log('\nVerifying data...');
@@ -157,17 +194,23 @@ async function seed() {
     const eventCount = await connection.query<{ count: number }>(
       'SELECT count() as count FROM observability.events'
     );
-    console.log(`Events in database: ${eventCount[0].count}`);
+    console.log(`Total events in database: ${eventCount[0].count}`);
     
-    const metricCount = await connection.query<{ count: number }>(
-      'SELECT count() as count FROM observability.metrics'
+    const eventsByType = await connection.query<{ event_type: string, count: number }>(
+      'SELECT event_type, count() as count FROM observability.events GROUP BY event_type ORDER BY event_type'
     );
-    console.log(`Metrics in database: ${metricCount[0].count}`);
+    console.log('\nEvents by type:');
+    eventsByType.forEach(row => {
+      console.log(`  ${row.event_type}: ${row.count}`);
+    });
     
-    const logCount = await connection.query<{ count: number }>(
-      'SELECT count() as count FROM observability.logs'
+    const eventsByService = await connection.query<{ service_name: string, count: number }>(
+      'SELECT service_name, count() as count FROM observability.events GROUP BY service_name ORDER BY service_name'
     );
-    console.log(`Logs in database: ${logCount[0].count}`);
+    console.log('\nEvents by service:');
+    eventsByService.forEach(row => {
+      console.log(`  ${row.service_name}: ${row.count}`);
+    });
     
     console.log('\n✅ Seeding completed successfully!');
     

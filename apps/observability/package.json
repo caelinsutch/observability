@@ -11,6 +11,7 @@
 	],
 	"scripts": {
 		"build": "tsup",
+		"build:cdn": "tsup --config tsup.config.cdn.ts",
 		"dev": "tsup --watch",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint . --ext .ts,.tsx",

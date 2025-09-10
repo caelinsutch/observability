@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observability CDN Example</title>
+</head>
+<body>
+    <h1>Observability SDK CDN Example</h1>
+    <p>Open the browser console to see the SDK in action.</p>
+    
+    <button id="track-event">Track Custom Event</button>
+    <button id="identify-user">Identify User</button>
+    <button id="track-page">Track Page View</button>
+    <button id="get-session">Get Session ID</button>
+    <button id="get-fingerprint">Get User Fingerprint</button>
+    <button id="trigger-error">Trigger Error</button>
+    
+    <div id="output" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+        <h3>Output:</h3>
+        <pre id="output-content"></pre>
+    </div>
+
+    <!-- Load the observability SDK from CDN (or local file for testing) -->
+    <script src="./dist-cdn/index.min.js"></script>
+    
+    <script>
+        // Initialize the SDK
+        let obs;
+        
+        async function initSDK() {
+            try {
+                obs = await ObservabilitySDK.Observability.init({
+                    endpoint: 'https://your-api-endpoint.com/events',
+                    debug: true,
+                    enableClickTracking: true,
+                    enableScrollTracking: true,
+                    enableErrorTracking: true,
+                    enablePerformanceTracking: true,
+                    enableConsoleErrorTracking: true,
+                    onEvent: (event) => {
+                        console.log('Event tracked:', event);
+                        updateOutput(`Event tracked: ${event.event_type}`);
+                    },
+                    onError: (error) => {
+                        console.error('SDK Error:', error);
+                        updateOutput(`Error: ${error.message}`);
+                    }
+                });
+                
+                updateOutput('SDK initialized successfully!');
+                console.log('Observability SDK initialized:', obs);
+            } catch (error) {
+                console.error('Failed to initialize SDK:', error);
+                updateOutput(`Failed to initialize: ${error.message}`);
+            }
+        }
+        
+        function updateOutput(message) {
+            const output = document.getElementById('output-content');
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent += `[${timestamp}] ${message}\n`;
+        }
+        
+        // Initialize SDK when page loads
+        initSDK();
+        
+        // Button event handlers
+        document.getElementById('track-event').addEventListener('click', () => {
+            if (obs) {
+                obs.track('button_clicked', {
+                    button_id: 'track-event',
+                    timestamp: Date.now()
+                });
+                updateOutput('Custom event tracked');
+            }
+        });
+        
+        document.getElementById('identify-user').addEventListener('click', () => {
+            if (obs) {
+                obs.identify('user-123', {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    plan: 'premium'
+                });
+                updateOutput('User identified: user-123');
+            }
+        });
+        
+        document.getElementById('track-page').addEventListener('click', () => {
+            if (obs) {
+                obs.page('Test Page', {
+                    category: 'demo',
+                    referrer: document.referrer
+                });
+                updateOutput('Page view tracked');
+            }
+        });
+        
+        document.getElementById('get-session').addEventListener('click', () => {
+            if (obs) {
+                const sessionId = obs.getSessionId();
+                updateOutput(`Session ID: ${sessionId}`);
+            }
+        });
+        
+        document.getElementById('get-fingerprint').addEventListener('click', () => {
+            if (obs) {
+                const fingerprint = obs.getUserFingerprint();
+                updateOutput(`User Fingerprint: ${fingerprint}`);
+            }
+        });
+        
+        document.getElementById('trigger-error').addEventListener('click', () => {
+            updateOutput('Triggering test error...');
+            throw new Error('Test error from CDN example');
+        });
+    </script>
+</body>
+</html>
