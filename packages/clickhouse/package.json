@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"@clickhouse/client": "^1.12.1",
-		"@observability/types": "workspace:*"
+		"@observability/schemas": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/node": "catalog:",

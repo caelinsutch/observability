@@ -3,12 +3,12 @@ import {
 	prepareEventsForInsert,
 } from "@observability/clickhouse";
 import {
-	EventSchema,
-	BatchRequestSchema,
-	EventQuerySchema,
-	type Event,
 	type BatchRequest,
+	BatchRequestSchema,
 	type EventQuery,
+	EventQuerySchema,
+	EventSchema,
+	type ObservabilityEvent,
 } from "@observability/schemas";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../env";
@@ -26,6 +26,7 @@ export async function eventsRoutes(server: FastifyInstance) {
 			request: FastifyRequest<{ Body: BatchRequest }>,
 			reply: FastifyReply,
 		) => {
+			console.log(JSON.stringify(request.body.events));
 			// Validate request body
 			const parseResult = BatchRequestSchema.safeParse(request.body);
 			if (!parseResult.success) {
@@ -90,7 +91,10 @@ export async function eventsRoutes(server: FastifyInstance) {
 	// Single event endpoint (for direct submissions)
 	server.post(
 		"/api/events",
-		async (request: FastifyRequest<{ Body: Event }>, reply: FastifyReply) => {
+		async (
+			request: FastifyRequest<{ Body: ObservabilityEvent }>,
+			reply: FastifyReply,
+		) => {
 			// Validate request body
 			const parseResult = EventSchema.safeParse(request.body);
 			if (!parseResult.success) {

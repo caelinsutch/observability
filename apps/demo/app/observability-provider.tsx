@@ -14,7 +14,7 @@ export function ObservabilityProvider({
 		Observability.init({
 			endpoint:
 				process.env.NEXT_PUBLIC_OBSERVABILITY_ENDPOINT ||
-				"http://localhost:8787/events",
+				"http://localhost:8787",
 			debug: process.env.NODE_ENV === "development",
 			enableClickTracking: true,
 			enableScrollTracking: true,

@@ -59,7 +59,7 @@ pnpm run seed
 ```typescript
 import { getConnection } from '@observability/clickhouse';
 import { prepareEventsForInsert } from '@observability/clickhouse';
-import type { Event } from '@observability/types';
+import type { Event } from '@observability/schemas';
 
 // Get connection
 const connection = getConnection();

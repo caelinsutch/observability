@@ -1,11 +1,9 @@
+import type { ObservabilityEvent } from "@observability/schemas";
 import { EventBatcher } from "./core/batcher";
 import { EventTracker } from "./events/tracker";
 import { PerformanceMonitor } from "./performance/monitor";
-import type { ObservabilityEvent } from "./types/events";
 import { FingerprintManager } from "./utils/fingerprint";
 import { isBot } from "./utils/helpers";
-
-export * from "./types/events";
 
 export interface ObservabilityConfig {
 	endpoint: string;

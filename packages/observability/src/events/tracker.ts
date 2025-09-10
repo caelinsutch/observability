@@ -1,13 +1,13 @@
-import {
-	type BaseEvent,
-	type ClickEvent,
-	type CustomEvent,
-	type ErrorEvent,
+import type {
+	BaseEvent,
+	ClickEvent,
+	CustomEvent,
+	ErrorEvent,
 	EventType,
-	type FormSubmitEvent,
-	type ObservabilityEvent,
-	type ScrollEvent,
-} from "../types/events";
+	FormSubmitEvent,
+	ObservabilityEvent,
+	ScrollEvent,
+} from "@observability/schemas";
 import type { FingerprintManager } from "../utils/fingerprint";
 import { generateEventId } from "../utils/helpers";
 
@@ -23,10 +23,10 @@ export class EventTracker {
 
 	private createBaseEvent(eventType: EventType): BaseEvent {
 		return {
+			id: generateEventId(),
 			timestamp: Date.now(),
 			session_id: this.fingerprintManager.getSessionId(),
 			user_fingerprint: this.fingerprintManager.getVisitorId(),
-			event_id: generateEventId(),
 			event_type: eventType,
 			page_url: window.location.href,
 			page_title: document.title,
@@ -73,8 +73,8 @@ export class EventTracker {
 		if (!target) return;
 
 		const clickEvent: ClickEvent = {
-			...this.createBaseEvent(EventType.CLICK),
-			event_type: EventType.CLICK,
+			...this.createBaseEvent("click"),
+			event_type: "click",
 			element_tag: target.tagName.toLowerCase(),
 			element_id: target.id || undefined,
 			element_classes: target.className
@@ -105,8 +105,8 @@ export class EventTracker {
 			this.maxScrollDepth = Math.max(this.maxScrollDepth, scrollY);
 
 			const scrollEvent: ScrollEvent = {
-				...this.createBaseEvent(EventType.SCROLL),
-				event_type: EventType.SCROLL,
+				...this.createBaseEvent("scroll"),
+				event_type: "scroll",
 				scroll_depth: scrollY,
 				scroll_percentage: Math.round(scrollPercentage),
 				scroll_y: scrollY,
@@ -126,8 +126,8 @@ export class EventTracker {
 			.map((el) => (el as HTMLInputElement).name);
 
 		const formEvent: FormSubmitEvent = {
-			...this.createBaseEvent(EventType.FORM_SUBMIT),
-			event_type: EventType.FORM_SUBMIT,
+			...this.createBaseEvent("form_submit"),
+			event_type: "form_submit",
 			form_id: form.id || undefined,
 			form_name: form.name || undefined,
 			form_action: form.action || undefined,
@@ -147,10 +147,8 @@ export class EventTracker {
 		isConsoleError = false,
 	): void {
 		const errorEvent: ErrorEvent = {
-			...this.createBaseEvent(
-				isConsoleError ? EventType.CONSOLE_ERROR : EventType.ERROR,
-			),
-			event_type: isConsoleError ? EventType.CONSOLE_ERROR : EventType.ERROR,
+			...this.createBaseEvent(isConsoleError ? "console_error" : "error"),
+			event_type: isConsoleError ? "console_error" : "error",
 			error_message: message,
 			error_stack: error?.stack,
 			error_filename: filename,
@@ -167,8 +165,8 @@ export class EventTracker {
 		eventData: Record<string, unknown>,
 	): void {
 		const customEvent: CustomEvent = {
-			...this.createBaseEvent(EventType.CUSTOM),
-			event_type: EventType.CUSTOM,
+			...this.createBaseEvent("custom"),
+			event_type: "custom",
 			event_name: eventName,
 			event_data: eventData,
 		};

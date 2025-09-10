@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { EventType } from "../../types/events";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FingerprintManager } from "../../utils/fingerprint";
 import { EventTracker } from "../tracker";
 
@@ -46,7 +45,7 @@ describe("EventTracker", () => {
 
 			const clickEvent = queue[0];
 			expect(clickEvent).toBeDefined();
-			expect(clickEvent?.event_type).toBe(EventType.CLICK);
+			expect(clickEvent?.event_type).toBe("click");
 			expect(clickEvent).toMatchObject({
 				session_id: "test-session-123",
 				user_fingerprint: "test-visitor-456",
@@ -129,7 +128,7 @@ describe("EventTracker", () => {
 
 			const scrollEvent = queue[0];
 			expect(scrollEvent).toBeDefined();
-			expect(scrollEvent?.event_type).toBe(EventType.SCROLL);
+			expect(scrollEvent?.event_type).toBe("scroll");
 			expect(scrollEvent).toMatchObject({
 				scroll_depth: 100,
 				scroll_y: 100,
@@ -215,7 +214,7 @@ describe("EventTracker", () => {
 
 			const formEvent = queue[0];
 			expect(formEvent).toBeDefined();
-			expect(formEvent?.event_type).toBe(EventType.FORM_SUBMIT);
+			expect(formEvent?.event_type).toBe("form_submit");
 			expect(formEvent).toMatchObject({
 				form_id: "test-form",
 				form_name: "testForm",
@@ -258,7 +257,7 @@ describe("EventTracker", () => {
 
 			const errorEvent = queue[0];
 			expect(errorEvent).toBeDefined();
-			expect(errorEvent?.event_type).toBe(EventType.ERROR);
+			expect(errorEvent?.event_type).toBe("error");
 			expect(errorEvent).toMatchObject({
 				error_message: "Test error message",
 				error_stack: "Error stack trace",
@@ -283,7 +282,7 @@ describe("EventTracker", () => {
 			expect(queue).toHaveLength(1);
 
 			const errorEvent = queue[0];
-			expect(errorEvent?.event_type).toBe(EventType.CONSOLE_ERROR);
+			expect(errorEvent?.event_type).toBe("console_error");
 			expect(errorEvent).toMatchObject({
 				error_message: "Console error message",
 			});
@@ -305,7 +304,7 @@ describe("EventTracker", () => {
 
 			const customEvent = queue[0];
 			expect(customEvent).toBeDefined();
-			expect(customEvent?.event_type).toBe(EventType.CUSTOM);
+			expect(customEvent?.event_type).toBe("custom");
 			expect(customEvent).toMatchObject({
 				event_name: "subscription_clicked",
 				event_data: eventData,
