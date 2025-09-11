@@ -8,7 +8,8 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm build:*)",
       "Bash(pnpm run:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "WebFetch(domain:clickhouse.com)"
     ],
     "deny": [],
     "ask": []

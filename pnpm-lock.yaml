@@ -115,6 +115,9 @@ importers:
       '@observability/schemas':
         specifier: workspace:*
         version: link:../schemas
+      dotenv:
+        specifier: ^17.2.2
+        version: 17.2.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

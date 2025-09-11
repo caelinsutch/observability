@@ -1,6 +1,10 @@
 import { createClient } from '@clickhouse/client';
+import * as dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
+
+// Load environment variables from .env file
+dotenv.config();
 
 interface Migration {
   version: string;
@@ -13,13 +17,20 @@ const client = createClient({
   url: process.env.CLICKHOUSE_URL || 'http://localhost:8123',
   username: process.env.CLICKHOUSE_USER || 'default',
   password: process.env.CLICKHOUSE_PASSWORD || '',
-  database: process.env.CLICKHOUSE_DATABASE || 'observability',
 });
+
+const DATABASE_NAME = process.env.CLICKHOUSE_DATABASE || 'observability';
+
+async function ensureDatabase(): Promise<void> {
+  await client.exec({
+    query: `CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}`,
+  });
+}
 
 async function ensureMigrationsTable(): Promise<void> {
   await client.exec({
     query: `
-      CREATE TABLE IF NOT EXISTS _migrations (
+      CREATE TABLE IF NOT EXISTS ${DATABASE_NAME}._migrations (
         version String,
         name String,
         applied_at DateTime DEFAULT now()
@@ -32,7 +43,7 @@ async function ensureMigrationsTable(): Promise<void> {
 
 async function getAppliedMigrations(): Promise<Set<string>> {
   const result = await client.query({
-    query: 'SELECT version FROM _migrations',
+    query: `SELECT version FROM ${DATABASE_NAME}._migrations`,
     format: 'JSONEachRow',
   });
   
@@ -96,13 +107,13 @@ async function runMigration(migration: Migration, direction: 'up' | 'down'): Pro
   
   if (direction === 'up') {
     await client.insert({
-      table: '_migrations',
+      table: `${DATABASE_NAME}._migrations`,
       values: [{ version: migration.version, name: migration.name }],
       format: 'JSONEachRow',
     });
   } else {
     await client.exec({
-      query: `DELETE FROM _migrations WHERE version = '${migration.version}'`,
+      query: `DELETE FROM ${DATABASE_NAME}._migrations WHERE version = '${migration.version}'`,
     });
   }
   
@@ -110,6 +121,7 @@ async function runMigration(migration: Migration, direction: 'up' | 'down'): Pro
 }
 
 async function migrateUp(): Promise<void> {
+  await ensureDatabase();
   await ensureMigrationsTable();
   
   const applied = await getAppliedMigrations();
@@ -132,6 +144,7 @@ async function migrateUp(): Promise<void> {
 }
 
 async function migrateDown(steps: number = 1): Promise<void> {
+  await ensureDatabase();
   await ensureMigrationsTable();
   
   const applied = await getAppliedMigrations();

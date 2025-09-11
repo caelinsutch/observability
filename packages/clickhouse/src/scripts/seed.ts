@@ -1,6 +1,10 @@
 import type { Event, EventType, SeverityLevel } from "@observability/types";
+import * as dotenv from 'dotenv';
 import { getConnection } from "../client";
 import { prepareEventsForInsert } from "../types/clickhouse";
+
+// Load environment variables from .env file
+dotenv.config();
 
 async function seed() {
 	const connection = getConnection();

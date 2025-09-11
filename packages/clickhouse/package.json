@@ -19,7 +19,8 @@
 	},
 	"dependencies": {
 		"@clickhouse/client": "^1.12.1",
-		"@observability/schemas": "workspace:*"
+		"@observability/schemas": "workspace:*",
+		"dotenv": "^17.2.2"
 	},
 	"devDependencies": {
 		"@types/node": "catalog:",

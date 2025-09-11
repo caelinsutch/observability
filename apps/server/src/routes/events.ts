@@ -1,6 +1,4 @@
-import {
-	prepareEventsForInsert,
-} from "@observability/clickhouse";
+import { prepareEventsForInsert } from "@observability/clickhouse";
 import {
 	type BatchRequest,
 	BatchRequestSchema,
@@ -56,7 +54,6 @@ export async function eventsRoutes(server: FastifyInstance) {
 
 				// Prepare events for insertion
 				const eventsToInsert = prepareEventsForInsert(events);
-
 				// Insert events into ClickHouse using context
 				await server.clickhouse.insert("events", eventsToInsert);
 
@@ -151,7 +148,6 @@ export async function eventsRoutes(server: FastifyInstance) {
 			} = parseResult.data;
 
 			try {
-
 				// Build query conditions (using parameterized queries for safety)
 				const conditions: string[] = [];
 				const params: Record<string, any> = {};

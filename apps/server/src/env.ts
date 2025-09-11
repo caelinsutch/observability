@@ -19,7 +19,7 @@ export const env = createEnv({
 		CLICKHOUSE_URL: z.string().default("http://localhost:8123"),
 		CLICKHOUSE_USER: z.string().default("default"),
 		CLICKHOUSE_PASSWORD: z.string().default("default"),
-		CLICKHOUSE_DATABASE: z.string().default("default"),
+		CLICKHOUSE_DATABASE: z.string().default("observability"),
 	},
 	runtimeEnv: process.env,
 });
