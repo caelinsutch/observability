@@ -1,5 +1,4 @@
 import {
-	getConnection,
 	prepareEventsForInsert,
 } from "@observability/clickhouse";
 import {
@@ -55,14 +54,11 @@ export async function eventsRoutes(server: FastifyInstance) {
 					processedAt,
 				});
 
-				// Get ClickHouse connection
-				const clickhouse = getConnection();
-
 				// Prepare events for insertion
 				const eventsToInsert = prepareEventsForInsert(events);
 
-				// Insert events into ClickHouse
-				await clickhouse.insert("events", eventsToInsert);
+				// Insert events into ClickHouse using context
+				await server.clickhouse.insert("events", eventsToInsert);
 
 				server.log.info({
 					msg: "Successfully inserted events into ClickHouse",
@@ -107,9 +103,8 @@ export async function eventsRoutes(server: FastifyInstance) {
 			const event = parseResult.data;
 
 			try {
-				const clickhouse = getConnection();
 				const eventsToInsert = prepareEventsForInsert([event]);
-				await clickhouse.insert("events", eventsToInsert);
+				await server.clickhouse.insert("events", eventsToInsert);
 
 				return {
 					success: true,
@@ -156,7 +151,6 @@ export async function eventsRoutes(server: FastifyInstance) {
 			} = parseResult.data;
 
 			try {
-				const clickhouse = getConnection();
 
 				// Build query conditions (using parameterized queries for safety)
 				const conditions: string[] = [];
@@ -198,7 +192,7 @@ export async function eventsRoutes(server: FastifyInstance) {
         OFFSET {offset:UInt32}
       `;
 
-				const events = await clickhouse.query(query, "JSONEachRow");
+				const events = await server.clickhouse.query(query, "JSONEachRow");
 
 				return {
 					success: true,

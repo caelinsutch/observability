@@ -1,5 +1,8 @@
 import { createEnv } from "@t3-oss/env-core";
+import dotenv from "dotenv";
 import { z } from "zod";
+
+dotenv.config();
 
 export const env = createEnv({
 	server: {
@@ -15,8 +18,8 @@ export const env = createEnv({
 		// ClickHouse connection
 		CLICKHOUSE_URL: z.string().default("http://localhost:8123"),
 		CLICKHOUSE_USER: z.string().default("default"),
-		CLICKHOUSE_PASSWORD: z.string().default(""),
-		CLICKHOUSE_DATABASE: z.string().default("observability"),
+		CLICKHOUSE_PASSWORD: z.string().default("default"),
+		CLICKHOUSE_DATABASE: z.string().default("default"),
 	},
 	runtimeEnv: process.env,
 });
