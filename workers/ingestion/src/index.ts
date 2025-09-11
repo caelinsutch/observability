@@ -3,19 +3,6 @@ import type { EventBatch, ObservabilityEvent } from "@observability/schemas";
 export default {
 	// HTTP endpoint to receive event batches from the observability script
 	async fetch(req, env, _ctx): Promise<Response> {
-		// Handle CORS preflight requests
-		if (req.method === "OPTIONS") {
-			return new Response(null, {
-				status: 200,
-				headers: {
-					"Access-Control-Allow-Origin": "*",
-					"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-					"Access-Control-Allow-Headers": "Content-Type, Authorization",
-					"Access-Control-Max-Age": "86400",
-				},
-			});
-		}
-
 		// Add CORS headers to all responses
 		const corsHeaders = {
 			"Access-Control-Allow-Origin": "*",
@@ -23,12 +10,47 @@ export default {
 			"Access-Control-Allow-Headers": "Content-Type, Authorization",
 		};
 
+		// Handle CORS preflight requests (no rate limiting needed for OPTIONS)
+		if (req.method === "OPTIONS") {
+			return new Response(null, {
+				status: 200,
+				headers: {
+					...corsHeaders,
+					"Access-Control-Max-Age": "86400",
+				},
+			});
+		}
+
 		try {
 			const contentType = req.headers.get("Content-Type");
 
 			if (contentType?.includes("application/json")) {
-				// Receive EventBatch from the observability script
+				// Parse the request body first to get session ID for rate limiting
 				const batch = (await req.json()) as EventBatch;
+
+				// Extract session ID from the batch for rate limiting
+				// Use the first event's session ID as the rate limit key
+				const sessionId = batch.events[0]?.session_id || "unknown";
+				
+				// Apply rate limiting by session ID before any processing
+				const { success } = await env.RATE_LIMITER.limit({ key: sessionId });
+				
+				if (!success) {
+					return new Response(
+						JSON.stringify({
+							error: "Rate limit exceeded for this session",
+							sessionId,
+						}),
+						{
+							status: 429,
+							headers: {
+								"Content-Type": "application/json",
+								"Retry-After": "60",
+								...corsHeaders,
+							},
+						},
+					);
+				}
 
 				// Add the entire batch to the queue
 				await env.OBSERVABILITY_QUEUE.send(batch);

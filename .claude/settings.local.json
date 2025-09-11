@@ -9,7 +9,9 @@
       "Bash(pnpm build:*)",
       "Bash(pnpm run:*)",
       "Bash(pnpm list:*)",
-      "WebFetch(domain:clickhouse.com)"
+      "WebFetch(domain:clickhouse.com)",
+      "Bash(touch:*)",
+      "WebFetch(domain:developers.cloudflare.com)"
     ],
     "deny": [],
     "ask": []
